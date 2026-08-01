@@ -1,0 +1,1 @@
+char *lcu_get_request(char *endpoint);

@@ -1,0 +1,1 @@
+DWORD get_client_pid();
