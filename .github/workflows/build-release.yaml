@@ -1,0 +1,66 @@
+name: Build & Release LcuRepl
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - "v*"
+  pull_request:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build LcuRepl (Windows x64)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Setup MSYS2 Environment
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-make
+            mingw-w64-x86_64-readline
+
+      - name: Compile LcuRepl
+        shell: msys2 {0}
+        run: |
+          mingw32-make.exe
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: LcuRepl-windows-x64
+          path: LcuRepl.exe
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: LcuRepl-windows-x64
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: LcuRepl.exe
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
