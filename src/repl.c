@@ -79,7 +79,7 @@ int repl(void)
 
         response = lcu_request(method, data, endpoint);
         if (response == NULL)
-            printf("%s", "LCU request failed.");
+            printf("%s", "LCU request failed.\n");
 
         else
         {

@@ -57,7 +57,7 @@ DWORD get_client_pid()
         }
 
     } while (Process32Next(hProcessSnap, &pe32));
-    printError(TEXT("Unable to find LeagueClientUx.exe."));
+    printf(TEXT("Unable to find LeagueClientUx.exe. Ensure it's running.\n"));
     CloseHandle(hProcessSnap);
     return 0;
 

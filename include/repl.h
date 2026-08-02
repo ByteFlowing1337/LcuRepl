@@ -14,7 +14,8 @@
 
 #define INTRO "| The LcuRepl tool allows you to debug and leverage the LCU APIs of the League of Legends Client. \n" \
               "|\n"                                                                                                  \
-              "| To use, type the command at the prompt in the format:\n"                                            \
+              "| To use, ensure the LeagueClientUx.exe is running,"                                                  \
+              "| then type the command at the prompt in the format:\n"                                               \
               "|     [METHOD] <ENDPOINT> [DATA]\n"                                                                   \
               "|\n"                                                                                                  \
               "| For more information, see the project README:\n"                                                    \
