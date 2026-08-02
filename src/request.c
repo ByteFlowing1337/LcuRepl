@@ -44,6 +44,7 @@ char *lcu_request(char *method, char *data, char *endpoint)
     char *token = get_remoting_auth_token();
     void *request_data;
     DWORD length;
+    char *response = NULL;
     LPCWSTR wmethod;
 
     if (!port || !token)
@@ -120,7 +121,6 @@ char *lcu_request(char *method, char *data, char *endpoint)
         bResults = WinHttpReceiveResponse(hRequest, NULL);
 
     // Accumulate Full Response Body across all chunks
-    char *response = NULL;
     size_t total_bytes = 0;
 
     if (bResults)

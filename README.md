@@ -54,7 +54,7 @@ To remove build artifacts:
 mingw32-make.exe clean
 ```
 
-## Implementation
+## Implementation Detail
 
 ```mermaid
 flowchart LR
@@ -64,3 +64,7 @@ flowchart LR
     REQ --> REPL["repl.c<br/>(Readline)"]
     REPL --> MAIN["main.c<br/>(Entry Point)"]
 ```
+
+## Acknowlegement
+
+- [isocline](https://github.com/daanx/isocline)

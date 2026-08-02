@@ -2,23 +2,9 @@
 #include <string.h>
 #include <stdlib.h> // free()
 #include <windows.h>
-#include <readline/readline.h>
-#include <readline/history.h>
+#include "isocline.h"
 #include "request.h"
 #include "repl.h"
-
-static BOOL WINAPI console_handler(DWORD signal)
-{
-    if (signal == CTRL_C_EVENT)
-    {
-        printf("\n");           // Print a new line
-        rl_on_new_line();       // Inform readline we moved down
-        rl_replace_line("", 0); // Clear currently typed buffer
-        rl_redisplay();         // Refresh prompt
-        return TRUE;            // Tell Windows we handled Ctrl+C (do NOT exit process!)
-    }
-    return FALSE;
-}
 
 int repl(void)
 {
@@ -28,23 +14,17 @@ int repl(void)
     char *endpoint;
     char *data;
     char *token;
-    if (!SetConsoleCtrlHandler(console_handler, TRUE))
-    {
-        fprintf(stderr, "Error: Could not set control handler\n");
-        return 1;
-    }
-    rl_catch_signals = 0;
 
     printf(WELCOME);
 
-    while ((input = readline(PROMPT)) != NULL)
+    ic_set_history(NULL, -1);
+    while ((input = ic_readline(NULL)) != NULL)
     {
         input[strcspn(input, "\n")] = '\0';
         if (input[0] == '\0')
         {
             goto cleanup;
         }
-        add_history(input);
         if (_stricmp(input, "/intro") == 0)
         {
             printf(INTRO);
@@ -108,6 +88,7 @@ int repl(void)
             response = NULL;
         }
     cleanup:
+        printf("\n");
         free(input);
     }
     return 0;

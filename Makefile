@@ -1,10 +1,11 @@
 CC := gcc
-CFLAGS := -Wall -Wextra -I./include -MMD -MP
-LDFLAGS := -s -lwinhttp -lntdll -lreadline
+CFLAGS := -Wall -Wextra -O2 -I./include -I./src/isocline -MMD -MP
+LDFLAGS := -s
+LIBS := -lwinhttp -lntdll
 
 TARGET := LcuRepl.exe
 
-SRC := src/cmdline.c src/repl.c src/pid.c src/token.c src/request.c src/main.c
+SRC := $(wildcard src/*.c) src/isocline/isocline.c
 OBJS := $(SRC:.c=.o)
 DEPS := $(OBJS:.o=.d)
 
@@ -13,7 +14,7 @@ DEPS := $(OBJS:.o=.d)
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET) $(LDFLAGS) $(LIBS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@

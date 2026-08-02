@@ -10,7 +10,7 @@
                                   _stricmp((token), "PUT") == 0 || _stricmp((token), "DELETE") == 0 || \
                                   _stricmp((token), "PATCH") == 0
 #define WELCOME "| Welcome to LcuRepl -- Version " VERSION "\n" \
-                "| For an introduction type: /intro\n"
+                "| For an introduction type: /intro\n\n"
 
 #define INTRO "| The LcuRepl tool allows you to debug and leverage the LCU APIs of the League of Legends Client. \n" \
               "|\n"                                                                                                  \
