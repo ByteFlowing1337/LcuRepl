@@ -13,7 +13,7 @@ Launch `LcuRepl.exe` while the League of Legends client is running, then type th
 ```
 
 - **`METHOD`** _(Optional)_: `GET` (default), `POST`, `PUT`, `PATCH`, or `DELETE`.
-- **`ENDPOINT`** _(Required)_: The LCU REST API path (e.g., `/lol-summoner/v1/current-summoner`).
+- **`ENDPOINT`** _(Required)_: The LCU REST API path (e.g., `/lol-summoner/v1/current-summoner`). You can look up available endpoints at [lcu.kebs.dev](https://lcu.kebs.dev/).
 - **`DATA`** _(Optional)_: JSON body payload for write requests.
 
 ---
