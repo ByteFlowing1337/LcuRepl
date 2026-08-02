@@ -34,21 +34,42 @@ int repl(void)
         return 1;
     }
     rl_catch_signals = 0;
+
+    printf(WELCOME);
+
     while ((input = readline(PROMPT)) != NULL)
     {
         input[strcspn(input, "\n")] = '\0';
         if (input[0] == '\0')
         {
-            free(input);
-            continue;
+            goto cleanup;
         }
+        add_history(input);
+        if (_stricmp(input, "/intro") == 0)
+        {
+            printf(INTRO);
+            goto cleanup;
+        }
+        if (_stricmp(input, "/exit") == 0 || _stricmp(input, "/quit") == 0)
+        {
+            free(input);
+            break;
+        }
+        if (_stricmp(input, "/clear") == 0 || _stricmp(input, "/cls") == 0)
+        {
+            // ANSI sequence: \033[2J (Clear Screen) + \033[H (Move cursor to row 1, col 1)
+            printf("\033[2J\033[H");
+            fflush(stdout);
+            goto cleanup;
+        }
+
+        // Get the first token
         token = strtok(input, " ");
         if (token == NULL)
         {
-            free(input);
-            continue;
+            goto cleanup;
         }
-        if (METHOD_IN_TOKEN)
+        if (IS_HTTP_METHOD(token))
         {
             method = token;
             endpoint = strtok(NULL, " ");
@@ -61,8 +82,7 @@ int repl(void)
         if (endpoint == NULL)
         {
             printf("Error: missing endpoint\n");
-            free(input);
-            continue;
+            goto cleanup;
         }
         data = strtok(NULL, "");
         if (data != NULL)
@@ -87,6 +107,7 @@ int repl(void)
             free(response);
             response = NULL;
         }
+    cleanup:
         free(input);
     }
     return 0;
