@@ -1,22 +1,26 @@
-CC := GCC
-
-CFLAGS := -Wall -Wextra -I./include
+CC := gcc
+CFLAGS := -Wall -Wextra -I./include -MMD -MP
 LDFLAGS := -s -lwinhttp -lntdll -lreadline
 
 TARGET := LcuRepl.exe
 
 SRC := src/cmdline.c src/repl.c src/pid.c src/token.c src/request.c src/main.c
 OBJS := $(SRC:.c=.o)
-CLEAN_OBJS := $(subst /,\,$(OBJS))
+DEPS := $(OBJS:.o=.d)
+
+.PHONY: all clean
 
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(OBJS) $(LDFLAGS) -o $(TARGET)
+	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET) $(LDFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-.PHONY: clean
+-include $(DEPS)
+
 clean:
-	del /Q /F $(CLEAN_OBJS) $(TARGET) 2>NUL || exit 0
+	@if exist src\*.o del /Q /F src\*.o 2>NUL || true
+	@if exist src\*.d del /Q /F src\*.d 2>NUL || true
+	@if exist $(TARGET) del /Q /F $(TARGET) 2>NUL || true
