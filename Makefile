@@ -1,11 +1,11 @@
 CC := GCC
 
 CFLAGS := -Wall -Wextra -I./include
-LDFLAGS := -s -lwinhttp -lntdll
+LDFLAGS := -s -lwinhttp -lntdll -lreadline
 
 TARGET := LcuRepl.exe
 
-SRC := src/cmdline.c src/repl.c src/pid.c src/token.c src/request.c 
+SRC := src/cmdline.c src/repl.c src/pid.c src/token.c src/request.c src/main.c
 OBJS := $(SRC:.c=.o)
 CLEAN_OBJS := $(subst /,\,$(OBJS))
 

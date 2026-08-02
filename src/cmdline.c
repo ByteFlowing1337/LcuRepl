@@ -16,6 +16,7 @@ char *get_cmdline()
 
     ULONG bufLen = 0;
 
+    // First call to get bufLen
     NtQueryInformationProcess(hProcess, ProcessCommandLineInformation, NULL, 0, &bufLen);
     if (bufLen == 0)
     {
@@ -30,6 +31,7 @@ char *get_cmdline()
         return NULL;
     }
 
+    // Second call to get cmdline info
     NTSTATUS status = NtQueryInformationProcess(
         hProcess,
         ProcessCommandLineInformation,
@@ -45,6 +47,7 @@ char *get_cmdline()
         return NULL;
     }
 
+    // First call to query buffer size
     int charCount = WideCharToMultiByte(
         CP_UTF8,
         0,
@@ -58,6 +61,7 @@ char *get_cmdline()
     char *resultStr = (char *)malloc(charCount + 1);
     if (resultStr)
     {
+        // Second call to perform conversion
         WideCharToMultiByte(
             CP_UTF8,
             0,

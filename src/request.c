@@ -38,10 +38,13 @@ static char *base64_encode(const unsigned char *data, size_t input_length)
     return encoded_data;
 }
 
-char *lcu_get_request(char *endpoint)
+char *lcu_request(char *method, char *data, char *endpoint)
 {
     char *port = get_app_port();
     char *token = get_remoting_auth_token();
+    void *request_data;
+    DWORD length;
+    LPCWSTR wmethod;
 
     if (!port || !token)
         return NULL;
@@ -56,8 +59,9 @@ char *lcu_get_request(char *endpoint)
     snprintf(raw_auth, sizeof(raw_auth), "riot:%s", token);
     char *b64_auth = base64_encode((unsigned char *)raw_auth, strlen(raw_auth));
 
-    wchar_t auth_header[512];
-    swprintf(auth_header, sizeof(auth_header) / sizeof(*auth_header), L"Authorization: Basic %hs\r\n", b64_auth);
+    wchar_t auth_header[600];
+    swprintf(auth_header, sizeof(auth_header) / sizeof(*auth_header),
+             L"Authorization: Basic %hs\r\nContent-Type: application/json\r\n", b64_auth);
     free(b64_auth);
 
     HINTERNET hSession = WinHttpOpen(L"LCU-Repl/1.0",
@@ -71,7 +75,19 @@ char *lcu_get_request(char *endpoint)
     if (!hConnect)
         goto cleanup_session;
 
-    HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"GET", wendpoint,
+    if (_stricmp(method, "GET") == 0)
+        wmethod = L"GET";
+    else if (_stricmp(method, "POST") == 0)
+        wmethod = L"POST";
+    else if (_stricmp(method, "PUT") == 0)
+        wmethod = L"PUT";
+    else if (_stricmp(method, "DELETE") == 0)
+        wmethod = L"DELETE";
+    else if (_stricmp(method, "PATCH") == 0)
+        wmethod = L"PATCH";
+    else
+        wmethod = L"GET";
+    HINTERNET hRequest = WinHttpOpenRequest(hConnect, wmethod, wendpoint,
                                             NULL, WINHTTP_NO_REFERER,
                                             WINHTTP_DEFAULT_ACCEPT_TYPES,
                                             WINHTTP_FLAG_SECURE);
@@ -85,10 +101,20 @@ char *lcu_get_request(char *endpoint)
                     SECURITY_FLAG_IGNORE_CERT_DATE_INVALID;
     WinHttpSetOption(hRequest, WINHTTP_OPTION_SECURITY_FLAGS, &dwFlags, sizeof(dwFlags));
 
+    if (data == NULL)
+    {
+        request_data = WINHTTP_NO_REQUEST_DATA;
+        length = 0;
+    }
+    else
+    {
+        request_data = data;
+        length = strlen(request_data);
+    }
     // Send Headers & Execute Request
     BOOL bResults = WinHttpSendRequest(hRequest,
                                        auth_header, -1L,
-                                       WINHTTP_NO_REQUEST_DATA, 0, 0, 0);
+                                       request_data, length, length, 0);
 
     if (bResults)
         bResults = WinHttpReceiveResponse(hRequest, NULL);

@@ -1,1 +1,1 @@
-char *lcu_get_request(char *endpoint);
+char *lcu_request(char *method, char *data, char *endpoint);
