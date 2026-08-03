@@ -5,6 +5,7 @@ A **lightweight** C REPL (Read–Eval–Print Loop) for interacting with the LCU
 ## Usage
 
 Launch `LcuRepl.exe` while the League of Legends client is running, then type the command at the prompt.
+By default, LcuRepl will save the input history to the file named "LcuRepl_history.txt".
 
 ### Command Syntax
 
@@ -15,6 +16,22 @@ Launch `LcuRepl.exe` while the League of Legends client is running, then type th
 - **`METHOD`** _(Optional)_: `GET` (default), `POST`, `PUT`, `PATCH`, or `DELETE`.
 - **`ENDPOINT`** _(Required)_: The LCU REST API path (e.g., `/lol-summoner/v1/current-summoner`). You can look up available endpoints at [lcu.kebs.dev](https://lcu.kebs.dev/).
 - **`DATA`** _(Optional)_: JSON body payload for write requests.
+
+---
+
+### REPL Commands
+
+In addition to LCU API requests, the REPL supports the following built-in commands:
+
+| Command  | Description                                    |
+| -------- | ---------------------------------------------- |
+| `.help`  | Show usage instructions and available commands |
+| `.clear` | Clear the terminal screen                      |
+| `.exit`  | Exit the REPL (equivalent to `Ctrl+D`)         |
+
+### Input History
+
+LcuRepl automatically saves every command you enter to a local history file, `LcuRepl_history.txt`, created in the working directory on first launch. Use the **Up/Down arrow keys** to navigate through previous commands.
 
 ---
 
@@ -58,11 +75,12 @@ mingw32-make.exe clean
 
 ```mermaid
 flowchart LR
-    PID["pid.c<br/>(Find Process)"] --> CMD["cmdline.c<br/>(Get cmdline args)"]
-    CMD --> TOKEN["token.c<br/>(Extract args)"]
-    TOKEN --> REQ["request.c<br/>(HTTP Client)"]
-    REQ --> REPL["repl.c<br/>(Readline)"]
-    REPL --> MAIN["main.c<br/>(Entry Point)"]
+    MAIN["main.c<br/>(Entry Point)"] --> PID["pid.c<br/>(Find Process)"]
+    PID --> CMD["cmdline.c<br/>(Get cmdline args)"]
+    CMD --> TOKEN["token.c<br/>(Extract port/token)"]
+    TOKEN --> REPL["repl.c<br/>(REPL loop)"]
+    REPL -->|"each command"| REQ["request.c<br/>(HTTP Client)"]
+    REQ -.->|"response"| REPL
 ```
 
 ## Acknowlegement

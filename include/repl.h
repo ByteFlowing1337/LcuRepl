@@ -18,4 +18,5 @@
              "| For more information, see the project README:\n"                                                    \
              "| https://github.com/ByteFlowing1337/LcuRepl/blob/main/README.md\n"
 
+#define HISTORY_FILE "LcuRepl_history.txt"
 int repl(void);

@@ -17,7 +17,7 @@ int repl(void)
 
     printf(WELCOME);
 
-    ic_set_history(NULL, -1);
+    ic_set_history(HISTORY_FILE, -1);
     while ((input = ic_readline(NULL)) != NULL)
     {
         input[strcspn(input, "\n")] = '\0';
