@@ -25,17 +25,17 @@ int repl(void)
         {
             goto cleanup;
         }
-        if (_stricmp(input, "/intro") == 0)
+        if (_stricmp(input, ".help") == 0)
         {
-            printf(INTRO);
+            printf(HELP);
             goto cleanup;
         }
-        if (_stricmp(input, "/exit") == 0 || _stricmp(input, "/quit") == 0)
+        if (_stricmp(input, ".exit") == 0 || _stricmp(input, ".quit") == 0)
         {
             free(input);
             break;
         }
-        if (_stricmp(input, "/clear") == 0 || _stricmp(input, "/cls") == 0)
+        if (_stricmp(input, ".clear") == 0 || _stricmp(input, ".cls") == 0)
         {
             // ANSI sequence: \033[2J (Clear Screen) + \033[H (Move cursor to row 1, col 1)
             printf("\033[2J\033[H");
@@ -65,6 +65,7 @@ int repl(void)
             goto cleanup;
         }
         data = strtok(NULL, "");
+        // clean up the remaing string
         if (data != NULL)
         {
             while (*data == ' ')
