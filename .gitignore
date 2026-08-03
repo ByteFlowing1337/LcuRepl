@@ -1,4 +1,7 @@
 test/
+
 *.o
 *.exe
 *.d
+
+LcuRepl_history.txt
