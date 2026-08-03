@@ -4,40 +4,6 @@
 #include <stdint.h> // uint32_t
 #include "token.h"
 
-// Helper: Base64 encoding for Basic Auth header
-static char *base64_encode(const unsigned char *data, size_t input_length)
-{
-    static const char encoding_table[] =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-    size_t output_length = 4 * ((input_length + 2) / 3);
-    char *encoded_data = malloc(output_length + 1);
-    if (!encoded_data)
-        return NULL;
-
-    for (size_t i = 0, j = 0; i < input_length;)
-    {
-        uint32_t octet_a = i < input_length ? data[i++] : 0;
-        uint32_t octet_b = i < input_length ? data[i++] : 0;
-        uint32_t octet_c = i < input_length ? data[i++] : 0;
-
-        uint32_t triple = (octet_a << 0x10) + (octet_b << 0x08) + octet_c;
-
-        encoded_data[j++] = encoding_table[(triple >> 3 * 6) & 0x3F];
-        encoded_data[j++] = encoding_table[(triple >> 2 * 6) & 0x3F];
-        encoded_data[j++] = encoding_table[(triple >> 1 * 6) & 0x3F];
-        encoded_data[j++] = encoding_table[(triple >> 0 * 6) & 0x3F];
-    }
-
-    // Pad bytes
-    static const int mod_table[] = {0, 2, 1};
-    for (int i = 0; i < mod_table[input_length % 3]; i++)
-        encoded_data[output_length - 1 - i] = '=';
-
-    encoded_data[output_length] = '\0';
-    return encoded_data;
-}
-
 char *lcu_request(char *method, char *data, char *endpoint)
 {
     char *port = get_app_port();
@@ -51,19 +17,14 @@ char *lcu_request(char *method, char *data, char *endpoint)
         return NULL;
 
     // Convert parameters to Wide strings using %hs for narrow-string safety
-    wchar_t wport[16], wendpoint[512];
+    wchar_t wport[16], wendpoint[512], wtoken[256];
     swprintf(wport, sizeof(wport) / sizeof(*wport), L"%hs", port);
     swprintf(wendpoint, sizeof(wendpoint) / sizeof(*wendpoint), L"%hs", endpoint);
+    swprintf(wtoken, sizeof(wtoken) / sizeof(*wtoken), L"%hs", token);
 
-    // Build Base64 Basic Auth: "riot:<token>"
-    char raw_auth[256];
-    snprintf(raw_auth, sizeof(raw_auth), "riot:%s", token);
-    char *b64_auth = base64_encode((unsigned char *)raw_auth, strlen(raw_auth));
-
-    wchar_t auth_header[600];
+    wchar_t auth_header[40];
     swprintf(auth_header, sizeof(auth_header) / sizeof(*auth_header),
-             L"Authorization: Basic %hs\r\nContent-Type: application/json\r\n", b64_auth);
-    free(b64_auth);
+             L"Content-Type: application/json\r\n");
 
     HINTERNET hSession = WinHttpOpen(L"LCU-Repl/1.0",
                                      WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
@@ -101,6 +62,8 @@ char *lcu_request(char *method, char *data, char *endpoint)
                     SECURITY_FLAG_IGNORE_CERT_CN_INVALID |
                     SECURITY_FLAG_IGNORE_CERT_DATE_INVALID;
     WinHttpSetOption(hRequest, WINHTTP_OPTION_SECURITY_FLAGS, &dwFlags, sizeof(dwFlags));
+    WinHttpSetCredentials(hRequest, WINHTTP_AUTH_TARGET_SERVER, WINHTTP_AUTH_SCHEME_BASIC,
+                          L"riot", wtoken, NULL);
 
     if (data == NULL)
     {
